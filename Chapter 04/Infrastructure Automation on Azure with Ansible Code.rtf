@@ -1,0 +1,210 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2639
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\froman\fcharset0 TimesNewRomanPS-ItalicMT;\f1\froman\fcharset0 TimesNewRomanPSMT;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;}
+\margl1440\margr1440\vieww16600\viewh11760\viewkind0
+\deftab720
+\pard\pardeftab720\partightenfactor0
+
+\f0\i\fs48 \cf2 \expnd0\expndtw0\kerning0
+---
+\f1\i0\fs32 \
+
+\f0\i\fs48 - name: Configure Azure virtual network
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0 hosts: localhost
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0 connection: local
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0 gather_facts: no
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0 vars:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 rg_name: myResourceGroup
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 vnet_name: myVirtualNetwork
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 subnet_name: mySubnet
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 vlan_prefix: "10.0.1.0/24"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 vlan_no_outbound: true
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0 tasks:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0 - name: Authenticate with Azure
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 azure_rm_auth:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 subscription_id: "<your subscription ID>"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 client_id: "<your client ID>"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 secret: "<your client secret>"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 tenant: "<your tenant ID>"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0 - name: Get virtual network information
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 azure_rm_virtualnetwork_info:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 resource_group: "\{\{ rg_name \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 name: "\{\{ vnet_name \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 register: vnet_info
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0 - name: Get subnet information
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 azure_rm_subnet_info:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 resource_group: "\{\{ rg_name \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 virtual_network_name: "\{\{ vnet_name \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 name: "\{\{ subnet_name \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 register: subnet_info
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0 - name: Configure subnet
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 azure_rm_subnet:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 resource_group: "\{\{ rg_name \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 virtual_network_name: "\{\{ vnet_name \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 name: "\{\{ subnet_name \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 address_prefix: "\{\{ vlan_prefix \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 network_security_group: "\{\{ subnet_info.subnet.network_security_group.id \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 when: vlan_no_outbound
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0 - name: Update network security group
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 azure_rm_securitygroup_rule:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 resource_group: "\{\{ rg_name \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 network_security_group_name: "\{\{ subnet_info.subnet.network_security_group.name \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 name: "Deny all outbound traffic"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 direction: "Outbound"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 access: "Deny"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 priority: 1000
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 protocol: "*"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 destination_address_prefix: "0.0.0.0/0"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 destination_port_range: "*"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 when: vlan_no_outbound
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0 - name: Apply changes
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 azure_rm_networkinterface:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 resource_group: "\{\{ rg_name \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 virtual_network_name: "\{\{ vnet_name \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 subnet_name: "\{\{ subnet_name \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 name: "\{\{ item.name \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 public_ip_name: "\{\{ item.public_ip_name \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 security_group_name: "\{\{ item.security_group_name \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 with_items: "\{\{ vnet_info.virtualnetwork.properties.ip_configurations \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 loop_control:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 label: "\{\{ item.name \}\}"
+\f1\i0\fs32 \
+}

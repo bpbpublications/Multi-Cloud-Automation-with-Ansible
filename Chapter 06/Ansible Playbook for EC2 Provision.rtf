@@ -1,0 +1,34 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2757
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 ---\
+- name: EC2 Provisioning Playbook\
+  hosts: localhost  # Replace with the appropriate host or inventory group\
+  become: yes\
+  tasks:\
+    - name: Create EC2 instance\
+      ec2:\
+        instance_type: t2.micro\
+        image: ami-12345678  # Replace with the desired AMI ID\
+        key_name: my-key  # Replace with your SSH key pair\
+        region: us-east-1  # Replace with your desired AWS region\
+        count: 1\
+        wait: yes\
+      register: ec2_instance\
+\
+    - name: Add the new instance to a host group\
+      add_host:\
+        name: "\{\{ item.public_ip \}\}"\
+        groups: ec2_instances\
+      with_items: "\{\{ ec2_instance.instances \}\}"\
+\
+- name: Configure EC2 instances\
+  hosts: ec2_instances\
+  become: yes\
+  roles:\
+    - ec2-provision  # Replace with your custom role name\
+}

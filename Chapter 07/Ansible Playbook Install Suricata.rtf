@@ -1,0 +1,63 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2757
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 ---\
+- name: Install and Setup Security Onion with Suricata\
+  hosts: security_servers  # Replace with your target hosts or inventory group\
+  become: yes\
+  tasks:\
+    - name: Install necessary packages\
+      apt:\
+        name:\
+          - curl\
+          - software-properties-common\
+        state: present\
+\
+    - name: Add Security Onion repository\
+      apt_repository:\
+        repo: 'ppa:securityonion/stable'\
+        state: present\
+\
+    - name: Update repositories\
+      apt:\
+        update_cache: yes\
+\
+    - name: Install Security Onion\
+      apt:\
+        name: securityonion-all\
+        state: present\
+\
+    - name: Setup Security Onion\
+      command:\
+        cmd: "sudo sosetup"\
+      warn: false\
+      when: onion_first_time_setup\
+      vars:\
+        onion_first_time_setup: true\
+\
+    - name: Install Suricata\
+      apt:\
+        name: suricata\
+        state: present\
+\
+    - name: Update Suricata rules\
+      command:\
+        cmd: "sudo suricata-update"\
+      warn: false\
+\
+    - name: Start Suricata in IDS mode\
+      systemd:\
+        name: suricata\
+        state: started\
+        enabled: yes\
+\
+  handlers:\
+    - name: restart suricata\
+      systemd:\
+        name: suricata\
+        state: restarted\
+}

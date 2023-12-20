@@ -1,0 +1,44 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2757
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 ---\
+- name: Check firewall compliance\
+  hosts: your_target_hosts  # Replace with your target hosts or inventory group\
+  become: yes\
+  tasks:\
+    - name: Check HTTP rule\
+      firewalld_info:\
+        service: http\
+      register: http_rule\
+\
+    - name: Check SSH rule\
+      firewalld_info:\
+        service: ssh\
+      register: ssh_rule\
+\
+    - name: Check SMTP rule\
+      firewalld_info:\
+        service: smtp\
+      register: smtp_rule\
+\
+    - name: Prepare compliance report\
+      set_fact:\
+        compliance_report: >\
+          HTTP rule state: \{\{ http_rule.firewalld_info.services.http.state | default('unknown') \}\}\\n\
+          SSH rule state: \{\{ ssh_rule.firewalld_info.services.ssh.state | default('unknown') \}\}\\n\
+          SMTP rule state: \{\{ smtp_rule.firewalld_info.services.smtp.state | default('unknown') \}\}\
+\
+    - name: Send compliance report via email\
+      mail:\
+        host: your_smtp_server  # Replace with your SMTP server address\
+        port: your_smtp_port  # Replace with your SMTP port\
+        subject: Firewall Compliance Report\
+        body: "\{\{ compliance_report \}\}"\
+        from: your_email_address  # Replace with your email address\
+        to: recipient_email_address  # Replace with recipient's email address\
+        secure: starttls  # Use 'starttls' for secure communication\
+}

@@ -1,0 +1,198 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2639
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\froman\fcharset0 TimesNewRomanPS-ItalicMT;\f1\froman\fcharset0 TimesNewRomanPSMT;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;}
+\margl1440\margr1440\vieww16600\viewh11760\viewkind0
+\deftab720
+\pard\pardeftab720\partightenfactor0
+
+\f0\i\fs48 \cf2 \expnd0\expndtw0\kerning0
+---
+\f1\i0\fs32 \
+
+\f0\i\fs48 - name: Provision Azure VM and Deploy SQL Server Database
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0 hosts: localhost
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0 connection: local
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0 gather_facts: no
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0 vars:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 rg_name: myResourceGroup
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 vnet_name: myVirtualNetwork
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 subnet_name: mySubnet
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 vlan_prefix: "10.0.1.0/24"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 vlan_no_outbound: true
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 vm_name: myVM
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 vm_size: Standard_DS2_v2
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 admin_username: myadminuser
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 admin_password: myadminpassword
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 sql_username: myuser
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 sql_password: mypassword
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 sql_server_name: mySqlServer
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 sql_db_name: myDatabase
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0 tasks:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0 - name: Authenticate with Azure
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 azure_rm_auth:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 subscription_id: "<your subscription ID>"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 client_id: "<your client ID>"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 secret: "<your client secret>"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 tenant: "<your tenant ID>"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0 - name: Create Azure Virtual Machine
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 azure_rm_virtualmachine:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 resource_group: "\{\{ rg_name \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 name: "\{\{ vm_name \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 vm_size: "\{\{ vm_size \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 admin_username: "\{\{ admin_username \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 admin_password: "\{\{ admin_password \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 location: "\{\{ vnet_info.virtualnetwork.location \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 network_interface_names: ["\{\{ vm_name \}\}-nic"]
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 network_interfaces:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0 - name: "\{\{ vm_name \}\}-nic"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 virtual_network: "\{\{ vnet_name \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 subnet_name: "\{\{ subnet_name \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0 - name: Wait for the virtual machine to come up
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 azure_rm_virtualmachine_info:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 resource_group: "\{\{ rg_name \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 name: "\{\{ vm_name \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 wait_for_running: yes
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 wait_for_ssh_timeout: 300
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0 - name: Install SQL Server on the virtual machine
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 win_chocolatey:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 name: sql-server-express
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 state: present
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 become: true
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0 - name: Create SQL Server Database
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 azure_rm_sqldatabase:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 resource_group: "\{\{ rg_name \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 server_name: "\{\{ sql_server_name \}\}.database.windows.net"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 name: "\{\{ sql_db_name \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 login_user: "\{\{ sql_username \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 login_password: "\{\{ sql_password \}\}"
+\f1\i0\fs32 \
+}

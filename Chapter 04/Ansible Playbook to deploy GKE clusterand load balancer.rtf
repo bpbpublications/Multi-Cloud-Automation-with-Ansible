@@ -1,0 +1,295 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2639
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\froman\fcharset0 TimesNewRomanPS-ItalicMT;\f1\froman\fcharset0 TimesNewRomanPSMT;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;}
+\margl1440\margr1440\vieww51000\viewh25980\viewkind0
+\deftab720
+\pard\pardeftab720\partightenfactor0
+
+\f0\i\fs48 \cf2 \expnd0\expndtw0\kerning0
+- name: Provision GKE cluster and load balancer
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0 hosts: localhost
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0 connection: local
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0 gather_facts: no
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0 vars:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 project_id: your_project_id
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 zone: your_zone
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 cluster_name: your_cluster_name
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 service_name: your_service_name
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 service_port: your_service_port
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 forwarding_rule_name: your_forwarding_rule_name
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 target_proxy_name: your_target_proxy_name
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0 tasks:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 - name: Create forwarding rule
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 gcp_compute_forwarding_rule:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0 project: "\{\{ project_id \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0 name: "\{\{ forwarding_rule_name \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0 region: "\{\{ zone|split('-')[0] \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0 ip_address: "\{\{ gcp_ip_address \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0 protocol: TCP
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0 load_balancing_scheme: EXTERNAL
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0 target: "\{\{ target_proxy_name \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 - name: Create target HTTP proxy
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 gcp_compute_target_http_proxy:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0 project: "\{\{ project_id \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0 name: "\{\{ target_proxy_name \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0 url_map: "\{\{ service_name \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 - name: Create URL map
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 gcp_compute_url_map:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0 project: "\{\{ project_id \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0 name: "\{\{ service_name \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0 default_service: "\{\{ service_name \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 - name: Create service
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 gcp_container_k8s:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0 name: "\{\{ service_name \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0 namespace: default
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0 state: present
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0 kind: Service
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0 definition:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 apiVersion: v1
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 kind: Service
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 metadata:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 name: "\{\{ service_name \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 spec:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0 \'a0\'a0\'a0\'a0\'a0\'a0\'a0type: NodePort
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 selector:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 app: your_app_name
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 ports:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 - port: "\{\{ service_port \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 targetPort: your_container_port
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 protocol: TCP
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 - name: Wait for service to become ready
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 k8s_info:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0 api_version: v1
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0 kind: Service
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0 name: "\{\{ service_name \}\}"
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0 namespace: default
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0 wait: yes
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0 timeout: 300
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 - name: Create deployment
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0 gcp_container_k8s:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0 name: your_deployment_name
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0 namespace: default
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0 state: present
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0 kind: Deployment
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0 definition:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 apiVersion: apps/v1
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 kind: Deployment
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 metadata:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 name: your_deployment_name
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 spec:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 replicas: 1
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 selector:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 matchLabels:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 app: your_app_name
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 template:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 metadata:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 labels:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 app: your_app_name
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0spec:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 containers:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 - name: your_container_name
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 image: your_image_name
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 ports:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 - containerPort: your_container_port
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 env:
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 - name: your_env_name
+\f1\i0\fs32 \
+
+\f0\i\fs48 \'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 value: your_env_value
+\f1\i0\fs32 \
+\
+}

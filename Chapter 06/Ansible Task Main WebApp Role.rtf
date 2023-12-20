@@ -1,0 +1,56 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2757
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 ---\
+- name: Install and Configure httpd with SSL\
+  hosts: localhost  # Change the host or inventory group as needed\
+  become: yes\
+  tasks:\
+    - name: Install httpd package\
+      yum:\
+        name: httpd\
+        state: present\
+\
+    - name: Start and enable httpd service\
+      service:\
+        name: httpd\
+        state: started\
+        enabled: yes\
+\
+    - name: Create index.html page\
+      copy:\
+        content: "<html><body><h1>Hello, World!</h1></body></html>"\
+        dest: /var/www/html/index.html\
+\
+    - name: Install mod_ssl for httpd\
+      yum:\
+        name: mod_ssl\
+        state: present\
+\
+    - name: Obtain a Let's Encrypt SSL certificate\
+      include_role:\
+        name: geerlingguy.certbot\
+      vars:\
+        certbot_create_if_missing: yes\
+        certbot_certs:\
+          - domains:\
+            - 'example.com'\
+          email: 'webmaster@example.com'\
+\
+    - name: Configure httpd for SSL\
+      template:\
+        src: ssl.conf.j2\
+        dest: /etc/httpd/conf.d/ssl.conf\
+      notify:\
+        - Restart httpd\
+\
+  handlers:\
+    - name: Restart httpd\
+      service:\
+        name: httpd\
+        state: restarted\
+}
